@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letters for Every Mood</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fef7ff 0%, #e8f4ff 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: #9c27b0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .mood-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            background-color: #fff;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        .mood-btn.active {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .envelopes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .envelope-card {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .envelope-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .envelope-card.open {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.2);
+            border: 2px solid #9c27b0;
+        }
+
+        .envelope-icon {
+            font-size: 2.8rem;
+            color: #9c27b0;
+            margin-bottom: 15px;
+            transition: all 0.5s ease;
+        }
+
+        .envelope-card.open .envelope-icon {
+            transform: rotateY(180deg) scale(1.2);
+            color: #ff4081;
+        }
+
+        .envelope-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 10px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+        }
+
+        .envelope-subtitle {
+            font-size: 0.95rem;
+            color: #777;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .envelope-tag {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .letter-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+            padding: 20px;
+        }
+
+        .letter-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .letter-paper {
+            background-color: #fffef7;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.5s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid #f0e6d6;
+        }
+
+        .letter-container.active .letter-paper {
+            transform: scale(1);
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px dashed #e1bee7;
+            padding-bottom: 20px;
+        }
+
+        .letter-header h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: #9c27b0;
+            margin-bottom: 10px;
+        }
+
+        .letter-header p {
+            color: #888;
+            font-style: italic;
+        }
+
+        .letter-content {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .letter-content p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .letter-signature {
+            text-align: right;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #9c27b0;
+            margin-top: 30px;
+        }
+
+        .close-letter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #9c27b0;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-letter:hover {
+            background-color: #7b1fa2;
+            transform: rotate(90deg);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom right, #f3e5f5, #e1bee7);
+            border-radius: 16px 16px 0 0;
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1;
+        }
+
+        .envelope-card.open .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        .envelope-body {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .heart-float {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 1.2rem;
+            color: rgba(156, 39, 176, 0.3);
+            animation: floatHeart 15s linear infinite;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e1bee7;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.8rem;
+            }
+            
+            .envelopes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 20px;
+            }
+            
+            .letter-paper {
+                padding: 25px;
+            }
+            
+            .letter-header h2 {
+                font-size: 2.2rem;
+            }
+            
+            .letter-content {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .envelopes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mood-selector {
+                gap: 10px;
+            }
+            
+            .mood-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="heart-float" id="heartFloat"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Letters for Every Moment</h1>
+            <p>Open an envelope for when you need comfort, encouragement, or just a smile</p>
+            
+            <div class="mood-selector" id="moodSelector">
+                <button class="mood-btn active" data-mood="all">
+                    <i class="fas fa-star"></i> All Letters
+                </button>
+                <button class="mood-btn" data-mood="encouragement">
+                    <i class="fas fa-hands-helping"></i> Encouragement
+                </button>
+                <button class="mood-btn" data-mood="comfort">
+                    <i class="fas fa-heart"></i> Comfort
+                </button>
+                <button class="mood-btn" data-mood="fun">
+                    <i class="fas fa-laugh-beam"></i> Fun
+                </button>
+            </div>
+        </div>
+        
+        <div class="envelopes-grid" id="envelopesGrid">
+            <!-- Envelopes will be generated by JavaScript -->
+        </div>
+        
+        <div class="letter-container" id="letterContainer">
+            <button class="close-letter" id="closeLetter">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="letter-paper" id="letterPaper">
+                <!-- Letter content will be inserted here -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Made with <i class="fas fa-heart" style="color:#9c27b0;"></i> for the most amazing person</p>
+            <p>Each letter is a little piece of my heart for you</p>
+        </div>
+    </div>
+
+    <script>
+        // Letters data
+        const letters = [
+            {
+                id: 1,
+                title: "Doubt Yourself",
+                subtitle: "When you need a confidence boost",
+                content: `
+                    <p>This is the only letter that I doubt you will ever open, because even if you be princess with me and act like you don't know anything, I know how smart you are and how intelligent you are emotionally and logically. I told you before, I can smell smart people and you are one of them because I couldn't stop talking to you from day one.</p>
+                    <p>So my love, for whatever reason I need you to know that you are smart and unique and beautiful. There is nothing you can't do. So whatever you are doubting yourself about, trust me it's gonna be just fine and I'm always there for you and always got your back.</p>
+                    <p>I love you my princess &lt;3</p>
+                `,
+                mood: "encouragement",
+                icon: "fas fa-brain",
+                tag: "Believe in yourself"
+            },
+            {
+                id: 2,
+                title: "Feel Overwhelmed",
+                subtitle: "When everything feels like too much",
+                content: `
+                    <p>Well well well, it happened again. You studied a lot and now you are overwhelmed. Or maybe you didn't even study - it's probably because you had tons of dopamine from TikTok and Netflix... bad bad girl! Unless you got the dopamine from me, then good good girl :)</p>
+                    <p>For any reason, I want you to get out, breathe some air, rest for few minutes, try again. If that doesn't work, cold shower is needed.</p>
+                    <p>And remember I'm always available for you. Call me and I will be there.</p>
+                    <p>I love you so much. I'm proud of you habibti.</p>
+                `,
+                mood: "comfort",
+                icon: "fas fa-cloud-rain",
+                tag: "Take a breath"
+            },
+            {
+                id: 3,
+                title: "Miss Me",
+                subtitle: "When you're missing your hubby",
+                content: `
+                    <p>Hello my beautiful baby, looks like you miss me :( I'm probably studying or doing something else or even fighting... sorry don't mind me.</p>
+                    <p>I'm really stupid sometimes and I miss you so much more. I always do, I'm always thinking about you and I really love you. So hayati, if I'm not there I want to tell you that your hubby misses you and will probably text soon, so don't worry. Stay tuned and wait for hubby :)</p>
+                    <p>Go write something or watch something until I am able to text you and then we be yapping again.</p>
+                    <p>I love you so much, soooo much mwaaah. Nom you ._.</p>
+                    <p style="text-align: center; font-weight: bold; margin-top: 20px;">Say it back -_-</p>
+                `,
+                mood: "comfort",
+                icon: "fas fa-heart-broken",
+                tag: "I miss you too"
+            },
+            {
+                id: 4,
+                title: "Need to Laugh",
+                subtitle: "When you need a good chuckle",
+                content: `
+                    <p>Probably came from another letter :)</p>
+                    <p>If you did then I have 3 words to tell you to make you laugh.</p>
+                    <p style="font-weight: bold; text-align: center; margin: 25px 0; font-size: 1.3rem; color: #9c27b0;">(Important: read them in my voice)</p>
+                    <div style="background-color: #f3e5f5; padding: 20px; border-radius: 12px; margin: 25px 0;">
+                        <p style="font-size: 1.4rem; text-align: center; font-weight: bold;">1. Telegramgrom</p>
+                    </div>
+                    <div style="background-color: #f3e5f5; padding: 20px; border-radius: 12px; margin: 25px 0;">
+                        <p style="font-size: 1.4rem; text-align: center; font-weight: bold;">2. There is no 3</p>
+                        <p style="text-align: center; margin-top: 10px;">kayn whda bark adhak wro7 😂😂😂😂😂😂</p>
+                    </div>
+                `,
+                mood: "fun",
+                icon: "fas fa-laugh-squint",
+                tag: "Silly time"
+            },
+            {
+                id: 5,
+                title: "Sad",
+                subtitle: "When you're feeling down",
+                content: `
+                    <p>My baby is feeling sad :( Probably because of me as always. If it was me, I'm really sorry for whatever reason I did. And if you did the thing (probably :) ) then don't worry, I always love you and matter of time until we are back together talking and making love ;)</p>
+                    <p>I love you so much my beautiful. Sadness is just a feeling, it will pass and you will forget about it once you are finally between my arms. You will forget you ever felt sad in your life. So try to imagine that.</p>
+                    <p>And if that doesn't help, I suggest you open the "wanna laugh" letter since laugh is opposite than sad mathematically. It would make you not sad ._.</p>
+                    <p>I Love you soooo muchhhh.</p>
+                    <p style="font-size: 1.3rem; font-weight: bold; text-align: center; margin-top: 25px;">MWAAAAAAAAH biggest kiss in your sweet lips</p>
+                `,
+                mood: "comfort",
+                icon: "fas fa-sad-tear",
+                tag: "It will pass"
+            },
+            {
+                id: 6,
+                title: "You Can't Sleep",
+                subtitle: "When sleep just won't come",
+                content: `
+                    <p>Akhaa you can't sleep and you have to wake up early ._. Where is your husband to sleep with you???? Did he sleep without saying good night again? Or fighting? Or you told him good night and you still here ._.</p>
+                    <p>Whatever reason, I'm sorry if it was because of me. And if not, then I hate whatever made you not sleep. I'm gonna beat their ass when I see them. But... they might be stronger than me and kill me and you can't help because you don't sleep enough, you won't have the energy :( You don't want that do you? U⌃U</p>
+                    <p>Then hayati go sleep and have lot of energy and take care of yourself so you have energy so we can fight our enemies together. And regardless, sleeping is good for your skin and good for your hair, so do that.</p>
+                    <p>Close your eyes, turn off lights, put on quran. And if you are stressed or you are up because of a problem, don't worry, God will solve everything. Make a duaa and sleep believing God will be there for you &lt;3</p>
+                `,
+                mood: "comfort",
+                icon: "fas fa-moon",
+                tag: "Sweet dreams"
+            }
+        ];
+
+        // DOM elements
+        const envelopesGrid = document.getElementById('envelopesGrid');
+        const letterContainer = document.getElementById('letterContainer');
+        const letterPaper = document.getElementById('letterPaper');
+        const closeLetter = document.getElementById('closeLetter');
+        const moodSelector = document.getElementById('moodSelector');
+        const heartFloat = document.getElementById('heartFloat');
+        
+        // Create floating hearts background
+        function createFloatingHearts() {
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '<i class="fas fa-heart"></i>';
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDuration = `${15 + Math.random() * 20}s`;
+                heart.style.animationDelay = `${Math.random() * 10}s`;
+                heart.style.fontSize = `${0.8 + Math.random() * 1.5}rem`;
+                heart.style.color = i % 3 === 0 ? 'rgba(156, 39, 176, 0.4)' : 
+                                   i % 3 === 1 ? 'rgba(255, 64, 129, 0.4)' : 
+                                   'rgba(103, 58, 183, 0.4)';
+                heartFloat.appendChild(heart);
+            }
+        }
+        
+        // Render envelopes based on selected mood
+        function renderEnvelopes(mood = 'all') {
+            envelopesGrid.innerHTML = '';
+            
+            const filteredLetters = mood === 'all' 
+                ? letters 
+                : letters.filter(letter => letter.mood === mood);
+            
+            filteredLetters.forEach(letter => {
+                const envelopeCard = document.createElement('div');
+                envelopeCard.className = 'envelope-card';
+                envelopeCard.dataset.id = letter.id;
+                
+                envelopeCard.innerHTML = `
+                    <div class="envelope-flap"></div>
+                    <div class="envelope-body">
+                        <div class="envelope-icon">
+                            <i class="${letter.icon}"></i>
+                        </div>
+                        <div class="envelope-title">${letter.title}</div>
+                        <div class="envelope-subtitle">${letter.subtitle}</div>
+                        <div class="envelope-tag">${letter.tag}</div>
+                    </div>
+                `;
+                
+                envelopesGrid.appendChild(envelopeCard);
+            });
+            
+            // Add click event to each envelope
+            document.querySelectorAll('.envelope-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    openLetter(id);
+                    
+                    // Add open class for animation
+                    this.classList.add('open');
+                    setTimeout(() => {
+                        this.classList.remove('open');
+                    }, 1000);
+                });
+            });
+        }
+        
+        // Open letter in modal
+        function openLetter(id) {
+            const letter = letters.find(l => l.id === id);
+            
+            if (!letter) return;
+            
+            letterPaper.innerHTML = `
+                <div class="letter-header">
+                    <h2>${letter.title}</h2>
+                    <p>${letter.subtitle}</p>
+                </div>
+                <div class="letter-content">
+                    ${letter.content}
+                </div>
+                <div class="letter-signature">With love, Your Hubby</div>
+            `;
+            
+            letterContainer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close letter modal
+        function closeLetterModal() {
+            letterContainer.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Filter envelopes by mood
+        function setupMoodFilter() {
+            moodSelector.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.parentElement.tagName === 'BUTTON') {
+                    const moodBtn = e.target.tagName === 'BUTTON' ? e.target : e.target.parentElement;
+                    const mood = moodBtn.dataset.mood;
+                    
+                    // Update active button
+                    document.querySelectorAll('.mood-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    moodBtn.classList.add('active');
+                    
+                    // Render envelopes for selected mood
+                    renderEnvelopes(mood);
+                }
+            });
+        }
+        
+        // Initialize app
+        function init() {
+            renderEnvelopes();
+            createFloatingHearts();
+            setupMoodFilter();
+            
+            // Close letter when clicking X or outside letter
+            closeLetter.addEventListener('click', closeLetterModal);
+            letterContainer.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeLetterModal();
+                }
+            });
+            
+            // Close with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && letterContainer.classList.contains('active')) {
+                    closeLetterModal();
+                }
+            });
+            
+            // Show welcome message
+            console.log("%c💌 Letters for Every Moment 💌", "color: #9c27b0; font-size: 24px; font-weight: bold; font-family: 'Dancing Script', cursive;");
+            console.log("%cEach envelope contains a special message for when you need it most.", "color: #666; font-size: 14px;");
+        }
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>

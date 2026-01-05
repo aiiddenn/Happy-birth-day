@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Mona - Your Gift Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #9c27b0;
+            --primary-light: #e1bee7;
+            --primary-dark: #7b1fa2;
+            --secondary: #ffeb3b;
+            --accent: #ff4081;
+            --text: #333333;
+            --text-light: #666666;
+            --background: #fef7ff;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.12);
+            --gradient: linear-gradient(135deg, #9c27b0, #ff4081);
+        }
+
+        .dark-mode {
+            --primary: #bb86fc;
+            --primary-light: #3700b3;
+            --primary-dark: #9c27b0;
+            --secondary: #ffeb3b;
+            --accent: #ff4081;
+            --text: #ffffff;
+            --text-light: #cccccc;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.4);
+            --gradient: linear-gradient(135deg, #bb86fc, #ff4081);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f9f7ff 0%, #f0f4ff 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        .dark-mode .welcome-screen {
+            background: linear-gradient(135deg, #1a0033 0%, #000000 100%);
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .welcome-container {
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            background-color: var(--card-bg);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--primary-light);
+        }
+
+        .welcome-container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient);
+        }
+
+        .welcome-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-container {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .typing-text {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: var(--text);
+            margin-bottom: 30px;
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: var(--primary);
+            animation: blink 1s infinite;
+            margin-left: 5px;
+            height: 1.2em;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .passcode-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px dashed var(--primary-light);
+        }
+
+        .passcode-label {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .passcode-input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .passcode-input {
+            background-color: var(--background);
+            border: 2px solid var(--primary-light);
+            border-radius: 15px;
+            color: var(--text);
+            font-size: 1.5rem;
+            padding: 15px 25px;
+            text-align: center;
+            width: 200px;
+            transition: all 0.3s ease;
+            letter-spacing: 5px;
+            font-family: 'Poppins', monospace;
+        }
+
+        .passcode-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(156, 39, 176, 0.2);
+            transform: scale(1.05);
+        }
+
+        .passcode-submit {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.3);
+        }
+
+        .passcode-submit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(156, 39, 176, 0.4);
+        }
+
+        .passcode-error {
+            color: #f44336;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            min-height: 20px;
+        }
+
+        .passcode-error.show {
+            opacity: 1;
+        }
+
+        /* Portal Container */
+        .portal-container {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            padding: 20px;
+        }
+
+        .portal-container.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .portal-header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .portal-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .portal-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .mode-toggle {
+            background-color: var(--card-bg);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .mode-toggle:hover {
+            transform: rotate(30deg);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 35px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .app-card {
+            background-color: var(--card-bg);
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            border: 2px solid var(--primary-light);
+            animation: cardAppear 0.6s ease both;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .app-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .app-card.locked:hover {
+            transform: none;
+            box-shadow: var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .app-header {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(255, 64, 129, 0.1));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(156, 39, 176, 0.3);
+        }
+
+        .app-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(156, 39, 176, 0.3));
+        }
+
+        .app-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .app-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        .app-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .app-description {
+            font-size: 1rem;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 80px;
+        }
+
+        .app-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .app-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .app-btn.open {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .app-btn.open:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3);
+        }
+
+        .app-btn.locked {
+            background-color: var(--primary-light);
+            color: var(--text);
+            cursor: not-allowed;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: var(--secondary);
+            font-size: 1.8rem;
+            animation: lockPulse 2s infinite;
+        }
+
+        @keyframes lockPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Quiz Modal */
+        .quiz-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .quiz-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .quiz-content {
+            background-color: var(--card-bg);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+            border: 2px solid var(--primary);
+            transform: scale(0.9);
+            transition: transform 0.5s ease;
+            position: relative;
+        }
+
+        .quiz-modal.active .quiz-content {
+            transform: scale(1);
+        }
+
+        .quiz-content:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient);
+            border-radius: 25px 25px 0 0;
+        }
+
+        .quiz-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .quiz-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .quiz-instruction {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            text-align: center;
+            background: rgba(156, 39, 176, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .quiz-input-container {
+            margin-bottom: 30px;
+        }
+
+        .quiz-input {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--background);
+            border: 2px solid var(--primary-light);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1.2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .quiz-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(156, 39, 176, 0.2);
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .quiz-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .quiz-btn.submit {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .quiz-btn.submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3);
+        }
+
+        .quiz-btn.close {
+            background-color: var(--primary-light);
+            color: var(--text);
+        }
+
+        .quiz-btn.close:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .quiz-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1rem;
+        }
+
+        .quiz-message.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+            display: block;
+        }
+
+        .quiz-message.error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+            display: block;
+        }
+
+        /* Background Effects */
+        .portal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-element {
+            position: absolute;
+            color: rgba(156, 39, 176, 0.1);
+            font-size: 4rem;
+            font-family: 'Dancing Script', cursive;
+            animation: floatElement 25s linear infinite;
+        }
+
+        @keyframes floatElement {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        /* Footer */
+        .portal-footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-top: 60px;
+            border-top: 1px solid var(--primary-light);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .heartbeat {
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            5% { transform: scale(1.1); }
+            10% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            20% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            transition: transform 0.5s ease;
+            max-width: 400px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .apps-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 3rem;
+            }
+            
+            .typing-text {
+                font-size: 1.5rem;
+            }
+            
+            .portal-title {
+                font-size: 3rem;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+                padding: 10px;
+            }
+            
+            .app-card {
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            .welcome-container {
+                padding: 30px;
+            }
+            
+            .passcode-input-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+            
+            .typing-text {
+                font-size: 1.3rem;
+            }
+            
+            .portal-title {
+                font-size: 2.5rem;
+            }
+            
+            .app-title {
+                font-size: 1.8rem;
+            }
+            
+            .quiz-content {
+                padding: 25px;
+            }
+            
+            .quiz-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-container">
+            <h1 class="welcome-title">Happy Birthday Mona!</h1>
+            
+            <div class="typing-container">
+                <div class="typing-text" id="typingText"></div>
+            </div>
+            
+            <div class="passcode-section">
+                <div class="passcode-label">Enter your special code to unlock your gifts</div>
+                
+                <div class="passcode-input-container">
+                    <input type="text" class="passcode-input" id="passcodeInput" maxlength="4" placeholder="____">
+                    <button class="passcode-submit" id="passcodeSubmit">
+                        <i class="fas fa-gift"></i> Unlock Gifts
+                    </button>
+                </div>
+                
+                <div class="passcode-error" id="passcodeError">Incorrect code. Please try again!</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Portal -->
+    <div class="portal-container" id="portalContainer">
+        <div class="portal-bg" id="portalBg"></div>
+        
+        <div class="portal-header">
+            <div class="header-top">
+                <div></div> <!-- Spacer -->
+                <button class="mode-toggle" id="modeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            
+            <h1 class="portal-title">Mona's Birthday Portal</h1>
+            <p class="portal-subtitle">All your special gifts in one magical place. Click any app to open it!</p>
+        </div>
+        
+        <div class="apps-grid" id="appsGrid">
+            <!-- Apps will be generated by JavaScript -->
+        </div>
+        
+        <div class="portal-footer">
+            <p>Made with <i class="fas fa-heart heartbeat" style="color:var(--primary);"></i> for the most amazing person</p>
+            <p>Every app is a piece of my heart created just for you</p>
+        </div>
+    </div>
+    
+    <!-- Quiz Modal for X App -->
+    <div class="quiz-modal" id="quizModal">
+        <div class="quiz-content">
+            <h2 class="quiz-title">Secret Access Required</h2>
+            <p class="quiz-subtitle">To unlock the mysterious X app</p>
+            
+            <div class="quiz-instruction">
+                Solve the quiz outside this app to get the access code.<br>
+                Enter the code below to unlock.
+            </div>
+            
+            <div class="quiz-input-container">
+                <input type="text" class="quiz-input" id="quizInput" placeholder="Enter the access code">
+            </div>
+            
+            <div class="quiz-actions">
+                <button class="quiz-btn submit" id="quizSubmit">Unlock App</button>
+                <button class="quiz-btn close" id="quizClose">Close</button>
+            </div>
+            
+            <div class="quiz-message" id="quizMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        // All apps are in the "grids" folder - using EXACT filenames as provided
+        const apps = [
+            {
+                id: 1,
+                title: "Birthday Letter",
+                subtitle: "A special message for you",
+                icon: "fas fa-envelope-open-text",
+                description: "Read the heartfelt letter I wrote for your birthday with an audio message.",
+                file: "grids/birthday letter.html",
+                unlocked: true,
+                animationDelay: 0.1
+            },
+            {
+                id: 2,
+                title: "Daily Prescription",
+                subtitle: "Your daily dose of love",
+                icon: "fas fa-heart-circle-plus",
+                description: "Get a new compliment or sweet message every 24 hours.",
+                file: "grids/daily prescription.html",
+                unlocked: true,
+                animationDelay: 0.2
+            },
+            {
+                id: 3,
+                title: "Read When...",
+                subtitle: "Letters for every mood",
+                icon: "fas fa-book-open",
+                description: "Special letters for when you need encouragement or comfort.",
+                file: "grids/Readd when.html",
+                unlocked: true,
+                animationDelay: 0.3
+            },
+            {
+                id: 4,
+                title: "Quranic Verses",
+                subtitle: "Peace and reflection",
+                icon: "fas fa-book-quran",
+                description: "Listen to and read beautiful Surahs and verses with audio.",
+                file: "grids/quran.html",
+                unlocked: true,
+                animationDelay: 0.4
+            },
+            {
+                id: 5,
+                title: "Mona's Eternal Love",
+                subtitle: "Our love story",
+                icon: "fas fa-book-heart",
+                description: "A virtual book with our story, featuring page-flipping animations.",
+                file: "grids/Mona's enternal love.html",
+                unlocked: true,
+                animationDelay: 0.5
+            },
+            {
+                id: 6,
+                title: "Puzzle Challenge",
+                subtitle: "Test your skills",
+                icon: "fas fa-puzzle-piece",
+                description: "Fun puzzles and brain teasers to challenge your mind.",
+                file: "grids/Puzzle.html",
+                unlocked: true,
+                animationDelay: 0.6
+            },
+            {
+                id: 7,
+                title: "Pomodoro Timer",
+                subtitle: "Study and focus helper",
+                icon: "fas fa-hourglass-half",
+                description: "A beautiful timer with voice note alarms for study breaks.",
+                file: "grids/Pomodoro.html",
+                unlocked: true,
+                animationDelay: 0.7
+            },
+            {
+                id: 8,
+                title: "Daily Planner",
+                subtitle: "Organize your day",
+                icon: "fas fa-calendar-check",
+                description: "Plan your days, set goals, and track your progress.",
+                file: "grids/planner.html",
+                unlocked: true,
+                animationDelay: 0.8
+            },
+            {
+                id: 9,
+                title: "Flashcards",
+                subtitle: "Study made beautiful",
+                icon: "fas fa-layer-group",
+                description: "Create and study flashcards with spaced repetition.",
+                file: "grids/flashcards.html",
+                unlocked: true,
+                animationDelay: 0.9
+            },
+            {
+                id: 10,
+                title: "Mysterious X",
+                subtitle: "The ultimate secret",
+                icon: "fas fa-lock",
+                description: "Something special awaits... but you need to solve a quiz first!",
+                file: "grids/X.html",
+                unlocked: false,
+                locked: true,
+                animationDelay: 1.0
+            }
+        ];
+
+        // DOM elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const portalContainer = document.getElementById('portalContainer');
+        const typingText = document.getElementById('typingText');
+        const passcodeInput = document.getElementById('passcodeInput');
+        const passcodeSubmit = document.getElementById('passcodeSubmit');
+        const passcodeError = document.getElementById('passcodeError');
+        const appsGrid = document.getElementById('appsGrid');
+        const portalBg = document.getElementById('portalBg');
+        const modeToggle = document.getElementById('modeToggle');
+        const quizModal = document.getElementById('quizModal');
+        const quizInput = document.getElementById('quizInput');
+        const quizSubmit = document.getElementById('quizSubmit');
+        const quizClose = document.getElementById('quizClose');
+        const quizMessage = document.getElementById('quizMessage');
+
+        // State
+        let currentAppToUnlock = null;
+        const correctPasscode = "2006"; // Her birth year
+        const correctQuizCode = "2029"; // The code from external quiz
+
+        // Create floating background elements
+        function createFloatingElements() {
+            const elements = ['💖', '🎁', '🎂', '✨', '🌟', '🎈', '🎀', '💝', '🦄'];
+            
+            for (let i = 0; i < 25; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.textContent = elements[Math.floor(Math.random() * elements.length)];
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.animationDuration = `${20 + Math.random() * 20}s`;
+                element.style.animationDelay = `${Math.random() * 10}s`;
+                element.style.fontSize = `${2 + Math.random() * 4}rem`;
+                element.style.opacity = `${0.03 + Math.random() * 0.07}`;
+                portalBg.appendChild(element);
+            }
+        }
+
+        // Typewriter effect for welcome message
+        async function typeWelcomeMessage() {
+            const messages = [
+                "Well... well... well...",
+                "Look who we have here!",
+                "",
+                "The princess has arrived!",
+                "",
+                "Happy birthday to the most beautiful person I've ever known.",
+                "",
+                "I created this special portal just for you...",
+                "",
+                "Are you ready to discover your gifts?"
+            ];
+            
+            // Clear initial text
+            typingText.innerHTML = '';
+            
+            // Type each message with pauses
+            for (const message of messages) {
+                if (message === "") {
+                    // Add a line break
+                    typingText.innerHTML += '<br>';
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                } else {
+                    await typeMessage(message);
+                }
+            }
+            
+            // Add blinking cursor at the end
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            typingText.appendChild(cursor);
+            
+            async function typeMessage(message, speed = 60) {
+                return new Promise(resolve => {
+                    let charIndex = 0;
+                    const typingInterval = setInterval(() => {
+                        if (charIndex < message.length) {
+                            typingText.innerHTML += message.charAt(charIndex);
+                            charIndex++;
+                        } else {
+                            clearInterval(typingInterval);
+                            setTimeout(resolve, 800); // Pause at end of message
+                        }
+                    }, speed);
+                });
+            }
+        }
+
+        // Render apps grid
+        function renderAppsGrid() {
+            appsGrid.innerHTML = '';
+            
+            apps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = `app-card ${app.locked ? 'locked' : ''}`;
+                appCard.style.animationDelay = `${app.animationDelay}s`;
+                
+                appCard.innerHTML = `
+                    <div class="app-header">
+                        <div class="app-number">${app.id}</div>
+                        <div class="app-icon">
+                            <i class="${app.icon}"></i>
+                        </div>
+                        <h3 class="app-title">${app.title}</h3>
+                        <p class="app-subtitle">${app.subtitle}</p>
+                        ${app.locked ? '<div class="lock-icon"><i class="fas fa-lock"></i></div>' : ''}
+                    </div>
+                    <div class="app-body">
+                        <p class="app-description">${app.description}</p>
+                        <div class="app-actions">
+                            ${app.locked 
+                                ? `<button class="app-btn locked" data-app-id="${app.id}">
+                                    <i class="fas fa-lock"></i> Locked - Solve Quiz
+                                </button>`
+                                : `<button class="app-btn open" data-app-id="${app.id}" data-app-file="${app.file}">
+                                    <i class="fas fa-external-link-alt"></i> Open App
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                appsGrid.appendChild(appCard);
+            });
+            
+            // Add event listeners to app buttons
+            document.querySelectorAll('.app-btn.open').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appFile = this.dataset.appFile;
+                    openApp(appFile);
+                });
+            });
+            
+            document.querySelectorAll('.app-btn.locked').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appId = parseInt(this.dataset.appId);
+                    openQuizModal(appId);
+                });
+            });
+        }
+
+        // Open an app - FIXED VERSION with proper encoding
+        function openApp(fileName) {
+            // First check if file exists locally
+            console.log("Attempting to open:", fileName);
+            
+            // Encode the URI properly for spaces and special characters
+            const encodedFileName = encodeURI(fileName);
+            
+            // Try to fetch the file first to check if it exists
+            fetch(fileName)
+                .then(response => {
+                    if (response.ok) {
+                        // File exists, open it in a new tab
+                        window.open(fileName, '_blank');
+                        showNotification('Opening app...', 'success');
+                    } else {
+                        // Try with encoded URI
+                        fetch(encodedFileName)
+                            .then(response2 => {
+                                if (response2.ok) {
+                                    window.open(encodedFileName, '_blank');
+                                    showNotification('Opening app...', 'success');
+                                } else {
+                                    showNotification(`App file not found: ${fileName}`, 'error');
+                                    console.error(`File not found: ${fileName}`);
+                                }
+                            })
+                            .catch(() => {
+                                showNotification(`App file not found: ${fileName}`, 'error');
+                                console.error(`File not found: ${fileName}`);
+                            });
+                    }
+                })
+                .catch(error => {
+                    // Network error or file doesn't exist
+                    console.error("Error opening app:", error);
+                    
+                    // Try direct opening as last resort
+                    try {
+                        window.open(fileName, '_blank');
+                        showNotification('Opening app...', 'success');
+                    } catch (e) {
+                        showNotification(`Could not open app: ${fileName}`, 'error');
+                        console.error("Final error opening app:", e);
+                    }
+                });
+        }
+
+        // Open quiz modal for locked app
+        function openQuizModal(appId) {
+            currentAppToUnlock = appId;
+            quizModal.classList.add('active');
+            quizInput.value = '';
+            quizMessage.className = 'quiz-message';
+            quizMessage.style.display = 'none';
+            quizInput.focus();
+        }
+
+        // Close quiz modal
+        function closeQuizModal() {
+            quizModal.classList.remove('active');
+            currentAppToUnlock = null;
+        }
+
+        // Check quiz answer
+        function checkQuizAnswer() {
+            const answer = quizInput.value.trim();
+            
+            if (answer === correctQuizCode) {
+                // Correct answer - unlock the app
+                quizMessage.textContent = 'Correct! The mysterious X app is now unlocked!';
+                quizMessage.className = 'quiz-message success';
+                quizMessage.style.display = 'block';
+                
+                // Unlock the app in the array
+                const appIndex = apps.findIndex(app => app.id === currentAppToUnlock);
+                if (appIndex !== -1) {
+                    apps[appIndex].locked = false;
+                    apps[appIndex].unlocked = true;
+                    
+                    // Re-render the grid after a delay
+                    setTimeout(() => {
+                        renderAppsGrid();
+                        closeQuizModal();
+                        showNotification('Mysterious X app unlocked! You can now open it.', 'success');
+                    }, 2000);
+                }
+            } else {
+                // Wrong answer
+                quizMessage.textContent = 'Incorrect code. Try again!';
+                quizMessage.className = 'quiz-message error';
+                quizMessage.style.display = 'block';
+                
+                // Shake animation
+                quizInput.style.animation = 'none';
+                setTimeout(() => {
+                    quizInput.style.animation = 'shake 0.5s';
+                }, 10);
+                
+                // Clear input after wrong answer
+                setTimeout(() => {
+                    quizInput.value = '';
+                    quizInput.focus();
+                }, 500);
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add shake animation if needed
+            if (type === 'error') {
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes shake {
+                        0%, 100% { transform: translateX(-50%) translateY(0); }
+                        10%, 30%, 50%, 70%, 90% { transform: translateX(calc(-50% - 5px)) translateY(0); }
+                        20%, 40%, 60%, 80% { transform: translateX(calc(-50% + 5px)) translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+                notification.style.animation = 'shake 0.5s';
+            }
+            
+            // Show
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 3000);
+        }
+
+        // Check passcode
+        function checkPasscode() {
+            const enteredCode = passcodeInput.value.trim();
+            
+            if (enteredCode === correctPasscode) {
+                // Correct passcode - unlock portal
+                passcodeError.classList.remove('show');
+                
+                // Hide welcome screen with animation
+                welcomeScreen.classList.add('hidden');
+                
+                // Show portal after delay
+                setTimeout(() => {
+                    portalContainer.classList.add('active');
+                    
+                    // Start portal animations
+                    createFloatingElements();
+                    
+                    // Show welcome notification
+                    setTimeout(() => {
+                        showNotification('Welcome to your birthday portal! Explore all your gifts.');
+                    }, 1000);
+                }, 1500);
+            } else {
+                // Wrong passcode
+                passcodeError.classList.add('show');
+                passcodeInput.style.animation = 'none';
+                setTimeout(() => {
+                    passcodeInput.style.animation = 'shake 0.5s';
+                    passcodeInput.value = '';
+                    passcodeInput.focus();
+                }, 10);
+            }
+        }
+
+        // Toggle dark/light mode
+        function toggleDarkMode() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            if (isDarkMode) {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                modeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                modeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+
+        // Initialize the app
+        function init() {
+            // Start typing welcome message
+            setTimeout(() => {
+                typeWelcomeMessage();
+            }, 500);
+            
+            // Render apps grid
+            renderAppsGrid();
+            
+            // Event listeners
+            passcodeSubmit.addEventListener('click', checkPasscode);
+            passcodeInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkPasscode();
+                }
+            });
+            
+            modeToggle.addEventListener('click', toggleDarkMode);
+            
+            quizSubmit.addEventListener('click', checkQuizAnswer);
+            quizClose.addEventListener('click', closeQuizModal);
+            quizInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkQuizAnswer();
+                }
+            });
+            
+            // Close modal when clicking outside
+            quizModal.addEventListener('click', (e) => {
+                if (e.target === quizModal) {
+                    closeQuizModal();
+                }
+            });
+            
+            // Add shake animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                    20%, 40%, 60%, 80% { transform: translateX(5px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Welcome console message
+            console.log("%c🎁 Mona's Birthday Portal 🎁", "color: #9c27b0; font-size: 24px; font-weight: bold; font-family: 'Dancing Script', cursive;");
+            console.log("%cAll your gifts are waiting in the grids folder!", "color: #666; font-size: 14px;");
+            console.log("%cMake sure all HTML files are in the 'grids' folder:", "color: #9c27b0; font-weight: bold;");
+            apps.forEach(app => {
+                console.log(`- ${app.file}`);
+            });
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>

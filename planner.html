@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Planner App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        h1 {
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h1 i {
+            color: #4f46e5;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        /* Week Navigation */
+        .week-navigation {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .week-nav-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .week-nav-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .week-nav-btn {
+            background: none;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .week-nav-btn:hover {
+            background-color: #f8fafc;
+            border-color: #d1d5db;
+        }
+        
+        .week-nav-display {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #4b5563;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .week-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .week-selector input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+        }
+        
+        .today-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .today-btn:hover {
+            background-color: #0da271;
+        }
+        
+        .settings-panel {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .settings-panel.active {
+            display: block;
+        }
+        
+        .settings-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .setting-item label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        
+        .setting-item input, .setting-item select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .setting-item input:focus, .setting-item select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .planner-container {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .days-header {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .time-column-header {
+            padding: 15px 10px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .day-header {
+            padding: 15px 10px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .day-header:last-child {
+            border-right: none;
+        }
+        
+        .day-name {
+            font-size: 1.1rem;
+        }
+        
+        .day-date {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .planner-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(7, 1fr);
+            position: relative;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .time-column {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .time-slot {
+            height: 60px;
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+            position: relative;
+            background-color: #f9fafb;
+        }
+        
+        .time-slot.hour-mark {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .day-column {
+            border-right: 1px solid #e5e7eb;
+            position: relative;
+        }
+        
+        .day-column:last-child {
+            border-right: none;
+        }
+        
+        .hour-slot {
+            height: 60px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+        }
+        
+        .hour-slot.half-hour {
+            border-bottom: 1px dashed #e5e7eb;
+        }
+        
+        .hour-slot:hover {
+            background-color: #f8fafc;
+        }
+        
+        .planner-block {
+            position: absolute;
+            border-radius: 6px;
+            padding: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .planner-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 20;
+        }
+        
+        .block-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .block-time {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .block-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: none;
+            gap: 5px;
+        }
+        
+        .planner-block:hover .block-actions {
+            display: flex;
+        }
+        
+        .block-action-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .block-action-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+        
+        .block-edit-btn {
+            color: #3b82f6;
+        }
+        
+        .block-delete-btn {
+            color: #ef4444;
+        }
+        
+        .block-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .block-modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option.selected {
+            border-color: #2d3748;
+            transform: scale(1.1);
+        }
+        
+        .snap-indicator {
+            position: absolute;
+            background-color: rgba(79, 70, 229, 0.2);
+            border: 2px solid #4f46e5;
+            border-radius: 6px;
+            z-index: 5;
+            pointer-events: none;
+            display: none;
+            box-sizing: border-box;
+        }
+        
+        .day-column.active-drag {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .pdf-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .pdf-modal.active {
+            display: flex;
+        }
+        
+        .pdf-options {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pdf-options-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .pdf-time-range {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .time-range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .time-input {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .time-input label {
+            font-weight: 500;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        
+        .time-input input {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .time-input input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .pdf-export-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        @media (max-width: 1200px) {
+            .planner-grid {
+                max-height: 60vh;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .controls {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .week-navigation {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .week-nav-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .week-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .days-header {
+                grid-template-columns: 60px repeat(7, 1fr);
+            }
+            
+            .planner-grid {
+                grid-template-columns: 60px repeat(7, 1fr);
+                font-size: 0.9rem;
+            }
+            
+            .planner-block {
+                padding: 5px;
+            }
+            
+            .block-title {
+                font-size: 0.8rem;
+            }
+            
+            .block-time {
+                font-size: 0.7rem;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .time-range-inputs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-week"></i> Weekly Planner</h1>
+            <div class="controls">
+                <button class="btn btn-secondary" id="settings-btn">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+                <button class="btn btn-primary" id="add-sample-btn">
+                    <i class="fas fa-plus"></i> Add Sample Blocks
+                </button>
+                <button class="btn btn-primary" id="export-pdf-btn">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+                <button class="btn btn-danger" id="clear-all-btn">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+        </header>
+        
+        <!-- Week Navigation -->
+        <div class="week-navigation">
+            <div class="week-nav-title">
+                <i class="fas fa-calendar-alt"></i> Week Selection
+            </div>
+            <div class="week-nav-controls">
+                <button class="week-nav-btn" id="prev-year">
+                    <i class="fas fa-angle-double-left"></i> Year
+                </button>
+                <button class="week-nav-btn" id="prev-month">
+                    <i class="fas fa-angle-left"></i> Month
+                </button>
+                <button class="week-nav-btn" id="prev-week">
+                    <i class="fas fa-chevron-left"></i> Week
+                </button>
+                
+                <div class="week-nav-display" id="week-display">
+                    <!-- Week info will be populated by JavaScript -->
+                </div>
+                
+                <button class="week-nav-btn" id="next-week">
+                    Week <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="week-nav-btn" id="next-month">
+                    Month <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="week-nav-btn" id="next-year">
+                    Year <i class="fas fa-angle-double-right"></i>
+                </button>
+                
+                <div class="week-selector">
+                    <input type="date" id="week-date-selector">
+                    <button class="today-btn" id="today-btn">
+                        <i class="fas fa-calendar-day"></i> Today
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-panel" id="settings-panel">
+            <div class="settings-title">
+                <i class="fas fa-sliders-h"></i> Planner Settings
+            </div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label for="start-hour">Day Start Time (0-23)</label>
+                    <input type="number" id="start-hour" min="0" max="23" value="8">
+                </div>
+                <div class="setting-item">
+                    <label for="end-hour">Day End Time (1-24)</label>
+                    <input type="number" id="end-hour" min="1" max="24" value="20">
+                </div>
+                <div class="setting-item">
+                    <label for="time-format">Time Format</label>
+                    <select id="time-format">
+                        <option value="12">12-hour (AM/PM)</option>
+                        <option value="24">24-hour</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="snap-interval">Snap Interval (minutes)</label>
+                    <select id="snap-interval">
+                        <option value="5">5 minutes</option>
+                        <option value="10">10 minutes</option>
+                        <option value="15">15 minutes</option>
+                        <option value="20" selected>20 minutes</option>
+                        <option value="30">30 minutes</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" id="apply-settings">
+                    <i class="fas fa-check"></i> Apply Settings
+                </button>
+            </div>
+        </div>
+        
+        <div class="planner-container">
+            <div class="days-header" id="days-header">
+                <!-- Generated by JavaScript -->
+            </div>
+            <div class="planner-grid" id="planner-grid">
+                <!-- Generated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="block-modal" id="block-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modal-title">Add New Block</h3>
+                    <button class="modal-close" id="modal-close">&times;</button>
+                </div>
+                <form class="modal-form" id="block-form">
+                    <input type="hidden" id="block-id">
+                    <input type="hidden" id="block-day">
+                    
+                    <div class="form-group">
+                        <label for="block-name">Block Name</label>
+                        <input type="text" id="block-name" placeholder="Enter block name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="block-start">Start Time</label>
+                        <input type="text" id="block-start" placeholder="HH:MM" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="block-end">End Time</label>
+                        <input type="text" id="block-end" placeholder="HH:MM" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="block-description">Description (Optional)</label>
+                        <textarea id="block-description" placeholder="Enter description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Color</label>
+                        <div class="color-options" id="color-options">
+                            <!-- Color options will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Block</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="pdf-modal" id="pdf-modal">
+            <div class="pdf-options">
+                <div class="pdf-options-title">
+                    <i class="fas fa-file-pdf"></i> PDF Export Options
+                </div>
+                <div class="pdf-time-range">
+                    <p>Select time range to include in PDF:</p>
+                    <div class="time-range-inputs">
+                        <div class="time-input">
+                            <label for="pdf-start-time">Start Time</label>
+                            <input type="time" id="pdf-start-time" value="08:00" step="300">
+                        </div>
+                        <div class="time-input">
+                            <label for="pdf-end-time">End Time</label>
+                            <input type="time" id="pdf-end-time" value="22:00" step="300">
+                        </div>
+                    </div>
+                </div>
+                <div class="pdf-export-buttons">
+                    <button class="btn btn-secondary" id="pdf-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="pdf-export">Export PDF</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification" id="notification">
+            <i class="fas fa-check-circle"></i>
+            <span id="notification-text">Settings applied successfully!</span>
+        </div>
+    </div>
+
+    <script>
+        // Planner application state
+        const plannerState = {
+            blocks: JSON.parse(localStorage.getItem('weeklyPlannerBlocks')) || {},
+            settings: JSON.parse(localStorage.getItem('weeklyPlannerSettings')) || {
+                startHour: 8,
+                endHour: 20,
+                timeFormat: '12',
+                snapInterval: 20,
+                colors: [
+                    {name: 'Blue', value: '#3b82f6'},
+                    {name: 'Purple', value: '#8b5cf6'},
+                    {name: 'Pink', value: '#ec4899'},
+                    {name: 'Red', value: '#ef4444'},
+                    {name: 'Orange', value: '#f97316'},
+                    {name: 'Yellow', value: '#f59e0b'},
+                    {name: 'Green', value: '#10b981'},
+                    {name: 'Teal', value: '#14b8a6'},
+                    {name: 'Gray', value: '#6b7280'}
+                ]
+            },
+            currentWeekStart: new Date(),
+            currentWeek: [],
+            days: [
+                {en: 'Mon', fr: 'Lun'},
+                {en: 'Tue', fr: 'Mar'},
+                {en: 'Wed', fr: 'Mer'},
+                {en: 'Thu', fr: 'Jeu'},
+                {en: 'Fri', fr: 'Ven'},
+                {en: 'Sat', fr: 'Sam'},
+                {en: 'Sun', fr: 'Dim'}
+            ],
+            isCreatingBlock: false,
+            creatingBlockStart: null,
+            creatingBlockDay: null,
+            snapIndicator: null,
+            selectedColor: '#3b82f6'
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlanner();
+            setupEventListeners();
+            loadSettingsFromStorage();
+        });
+
+        // Initialize the planner grid and blocks
+        function initializePlanner() {
+            // Set current week start to Monday of current week
+            setToMonday(plannerState.currentWeekStart);
+            generateWeekDates();
+            renderWeekDisplay();
+            renderPlannerHeader();
+            renderPlannerGrid();
+            renderColorOptions();
+            loadBlocksFromStorage();
+        }
+
+        // Set date to Monday of its week
+        function setToMonday(date) {
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+            date.setDate(diff);
+            date.setHours(0, 0, 0, 0);
+        }
+
+        // Generate current week dates based on currentWeekStart
+        function generateWeekDates() {
+            plannerState.currentWeek = [];
+            const monday = new Date(plannerState.currentWeekStart);
+            
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(monday);
+                day.setDate(monday.getDate() + i);
+                plannerState.currentWeek.push(day);
+            }
+        }
+
+        // Render week display in navigation
+        function renderWeekDisplay() {
+            const weekDisplay = document.getElementById('week-display');
+            const weekStart = plannerState.currentWeek[0];
+            const weekEnd = plannerState.currentWeek[6];
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            const weekStartStr = `${weekStart.getDate()} ${monthNames[weekStart.getMonth()].substring(0, 3)}`;
+            const weekEndStr = `${weekEnd.getDate()} ${monthNames[weekEnd.getMonth()].substring(0, 3)} ${weekEnd.getFullYear()}`;
+            
+            weekDisplay.textContent = `Week of ${weekStartStr} - ${weekEndStr}`;
+            
+            // Set date selector to Monday of current week
+            document.getElementById('week-date-selector').valueAsDate = weekStart;
+        }
+
+        // Navigate to previous week
+        function navigateToPreviousWeek() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setDate(newDate.getDate() - 7);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to next week
+        function navigateToNextWeek() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setDate(newDate.getDate() + 7);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to previous month
+        function navigateToPreviousMonth() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setMonth(newDate.getMonth() - 1);
+            setToMonday(newDate);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to next month
+        function navigateToNextMonth() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setMonth(newDate.getMonth() + 1);
+            setToMonday(newDate);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to previous year
+        function navigateToPreviousYear() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setFullYear(newDate.getFullYear() - 1);
+            setToMonday(newDate);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to next year
+        function navigateToNextYear() {
+            const newDate = new Date(plannerState.currentWeekStart);
+            newDate.setFullYear(newDate.getFullYear() + 1);
+            setToMonday(newDate);
+            plannerState.currentWeekStart = newDate;
+            updatePlannerWeek();
+        }
+
+        // Navigate to today
+        function navigateToToday() {
+            const today = new Date();
+            setToMonday(today);
+            plannerState.currentWeekStart = today;
+            updatePlannerWeek();
+        }
+
+        // Navigate to specific date
+        function navigateToDate(date) {
+            setToMonday(date);
+            plannerState.currentWeekStart = date;
+            updatePlannerWeek();
+        }
+
+        // Update planner after week navigation
+        function updatePlannerWeek() {
+            generateWeekDates();
+            renderWeekDisplay();
+            renderPlannerHeader();
+            renderPlannerGrid();
+            loadBlocksFromStorage();
+        }
+
+        // Get week key for storage
+        function getWeekKey(date) {
+            const monday = new Date(date);
+            setToMonday(monday);
+            return monday.toISOString().split('T')[0]; // YYYY-MM-DD format
+        }
+
+        // Render the planner header with day names
+        function renderPlannerHeader() {
+            const daysHeader = document.getElementById('days-header');
+            daysHeader.innerHTML = '';
+            
+            // Time column header
+            const timeHeader = document.createElement('div');
+            timeHeader.className = 'time-column-header';
+            timeHeader.textContent = 'Time';
+            daysHeader.appendChild(timeHeader);
+            
+            // Day headers
+            plannerState.currentWeek.forEach((date, index) => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.dataset.dayIndex = index;
+                
+                const dayName = document.createElement('div');
+                dayName.className = 'day-name';
+                dayName.textContent = `${plannerState.days[index].fr} / ${plannerState.days[index].en}`;
+                
+                const dayDate = document.createElement('div');
+                dayDate.className = 'day-date';
+                dayDate.textContent = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                dayHeader.appendChild(dayName);
+                dayHeader.appendChild(dayDate);
+                daysHeader.appendChild(dayHeader);
+            });
+        }
+
+        // Render the planner grid
+        function renderPlannerGrid() {
+            const plannerGrid = document.getElementById('planner-grid');
+            plannerGrid.innerHTML = '';
+            
+            const startHour = plannerState.settings.startHour;
+            const endHour = plannerState.settings.endHour;
+            
+            // Time column
+            const timeColumn = document.createElement('div');
+            timeColumn.className = 'time-column';
+            
+            for (let hour = startHour; hour <= endHour; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const timeSlot = document.createElement('div');
+                    timeSlot.className = 'time-slot';
+                    
+                    if (minute === 0) {
+                        timeSlot.classList.add('hour-mark');
+                        timeSlot.textContent = formatTime(hour, 0);
+                    } else {
+                        timeSlot.classList.add('half-hour');
+                        timeSlot.textContent = formatTime(hour, minute);
+                    }
+                    
+                    // Set height based on 30-minute intervals
+                    timeSlot.style.height = '30px';
+                    timeColumn.appendChild(timeSlot);
+                }
+            }
+            
+            plannerGrid.appendChild(timeColumn);
+            
+            // Day columns
+            for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                const dayColumn = document.createElement('div');
+                dayColumn.className = 'day-column';
+                dayColumn.dataset.dayIndex = dayIndex;
+                
+                // Add hour slots for dragging
+                for (let hour = startHour; hour <= endHour; hour++) {
+                    for (let minute = 0; minute < 60; minute += 30) {
+                        const hourSlot = document.createElement('div');
+                        hourSlot.className = 'hour-slot';
+                        hourSlot.dataset.dayIndex = dayIndex;
+                        hourSlot.dataset.hour = hour;
+                        hourSlot.dataset.minute = minute;
+                        
+                        // Set height based on 30-minute intervals
+                        hourSlot.style.height = '30px';
+                        
+                        // Mark half-hour slots
+                        if (minute === 30) {
+                            hourSlot.classList.add('half-hour');
+                        }
+                        
+                        dayColumn.appendChild(hourSlot);
+                    }
+                }
+                
+                plannerGrid.appendChild(dayColumn);
+            }
+            
+            // Setup grid for drag creation
+            setupDragCreation();
+        }
+
+        // Format time based on settings
+        function formatTime(hour, minute) {
+            const timeFormat = plannerState.settings.timeFormat;
+            
+            if (timeFormat === '12') {
+                const period = hour >= 12 ? 'PM' : 'AM';
+                let displayHour = hour % 12;
+                if (displayHour === 0) displayHour = 12;
+                
+                if (minute === 0) {
+                    return `${displayHour} ${period}`;
+                } else {
+                    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+                }
+            } else {
+                if (minute === 0) {
+                    return `${hour.toString().padStart(2, '0')}:00`;
+                } else {
+                    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                }
+            }
+        }
+
+        // Setup drag creation for blocks
+        function setupDragCreation() {
+            const dayColumns = document.querySelectorAll('.day-column');
+            
+            dayColumns.forEach(column => {
+                column.addEventListener('mousedown', startBlockCreation);
+            });
+            
+            // Add mouse move and mouse up to the entire document
+            document.addEventListener('mousemove', updateBlockCreation);
+            document.addEventListener('mouseup', endBlockCreation);
+            
+            // Prevent text selection while dragging
+            document.addEventListener('selectstart', function(e) {
+                if (plannerState.isCreatingBlock) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Start block creation (direct click & drag)
+        function startBlockCreation(e) {
+            e.preventDefault();
+            
+            const dayIndex = parseInt(e.currentTarget.dataset.dayIndex);
+            
+            // Get the position relative to the day column
+            const rect = e.currentTarget.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            
+            // Calculate start time based on position
+            const startHour = plannerState.settings.startHour;
+            const endHour = plannerState.settings.endHour;
+            const slotHeight = 30; // 30px per 30-minute slot
+            const totalMinutes = (endHour - startHour) * 60;
+            const totalHeight = (totalMinutes / 30) * slotHeight;
+            
+            const minuteOffset = Math.floor((y / totalHeight) * totalMinutes);
+            const startTime = snapToGrid(minuteOffset);
+            
+            plannerState.isCreatingBlock = true;
+            plannerState.creatingBlockStart = startTime;
+            plannerState.creatingBlockDay = dayIndex;
+            
+            // Create a snap indicator for this day column
+            createSnapIndicator(dayIndex, startTime, startTime);
+            
+            // Highlight the day column
+            e.currentTarget.classList.add('active-drag');
+        }
+
+        // Update block creation while dragging
+        function updateBlockCreation(e) {
+            if (!plannerState.isCreatingBlock) return;
+            
+            const dayColumn = document.querySelector(`.day-column[data-day-index="${plannerState.creatingBlockDay}"]`);
+            if (!dayColumn) return;
+            
+            // Get mouse position relative to the day column
+            const rect = dayColumn.getBoundingClientRect();
+            let y = e.clientY - rect.top;
+            
+            // Calculate time based on position
+            const startHour = plannerState.settings.startHour;
+            const endHour = plannerState.settings.endHour;
+            const slotHeight = 30;
+            const totalMinutes = (endHour - startHour) * 60;
+            const totalHeight = (totalMinutes / 30) * slotHeight;
+            
+            // Constrain y to within the day column
+            y = Math.max(0, Math.min(y, totalHeight));
+            
+            const minuteOffset = Math.floor((y / totalHeight) * totalMinutes);
+            const endTime = snapToGrid(minuteOffset);
+            
+            // Ensure end time is after start time (minimum 1 snap interval)
+            const adjustedEndTime = Math.max(endTime, plannerState.creatingBlockStart + plannerState.settings.snapInterval);
+            
+            // Update snap indicator
+            updateSnapIndicator(plannerState.creatingBlockDay, plannerState.creatingBlockStart, adjustedEndTime);
+        }
+
+        // End block creation
+        function endBlockCreation(e) {
+            if (!plannerState.isCreatingBlock) return;
+            
+            const dayColumn = document.querySelector(`.day-column[data-day-index="${plannerState.creatingBlockDay}"]`);
+            if (dayColumn) {
+                dayColumn.classList.remove('active-drag');
+            }
+            
+            // Remove snap indicator
+            removeSnapIndicator();
+            
+            // Get final mouse position
+            if (dayColumn) {
+                const rect = dayColumn.getBoundingClientRect();
+                let y = e.clientY - rect.top;
+                
+                // Calculate time based on position
+                const startHour = plannerState.settings.startHour;
+                const endHour = plannerState.settings.endHour;
+                const slotHeight = 30;
+                const totalMinutes = (endHour - startHour) * 60;
+                const totalHeight = (totalMinutes / 30) * slotHeight;
+                
+                // Constrain y to within the day column
+                y = Math.max(0, Math.min(y, totalHeight));
+                
+                const minuteOffset = Math.floor((y / totalHeight) * totalMinutes);
+                const endTime = snapToGrid(minuteOffset);
+                
+                // Ensure end time is after start time
+                const adjustedEndTime = Math.max(endTime, plannerState.creatingBlockStart + plannerState.settings.snapInterval);
+                
+                // Open modal to add block details if we have a valid time range
+                if (adjustedEndTime > plannerState.creatingBlockStart) {
+                    openBlockModal(plannerState.creatingBlockDay, plannerState.creatingBlockStart, adjustedEndTime);
+                }
+            }
+            
+            // Reset creating block state
+            plannerState.isCreatingBlock = false;
+            plannerState.creatingBlockStart = null;
+            plannerState.creatingBlockDay = null;
+        }
+
+        // Snap time to grid based on settings
+        function snapToGrid(minutes) {
+            const interval = plannerState.settings.snapInterval;
+            const snapped = Math.round(minutes / interval) * interval;
+            return Math.max(0, snapped);
+        }
+
+        // Create a snap indicator for a specific day column
+        function createSnapIndicator(dayIndex, startMinutes, endMinutes) {
+            const dayColumn = document.querySelector(`.day-column[data-day-index="${dayIndex}"]`);
+            if (!dayColumn) return;
+            
+            // Remove any existing snap indicator
+            removeSnapIndicator();
+            
+            const startHour = plannerState.settings.startHour;
+            const slotHeight = 30;
+            const minutesPerSlot = 30;
+            
+            // Calculate position
+            const startSlot = startMinutes / minutesPerSlot;
+            const endSlot = endMinutes / minutesPerSlot;
+            
+            const top = startSlot * slotHeight;
+            const height = Math.max((endSlot - startSlot) * slotHeight, slotHeight / 2);
+            
+            // Create the snap indicator
+            const snapIndicator = document.createElement('div');
+            snapIndicator.className = 'snap-indicator';
+            snapIndicator.style.top = `${top}px`;
+            snapIndicator.style.height = `${height}px`;
+            snapIndicator.style.width = '100%';
+            snapIndicator.style.display = 'block';
+            
+            // Store reference to the snap indicator
+            plannerState.snapIndicator = snapIndicator;
+            
+            // Add it to the day column
+            dayColumn.appendChild(snapIndicator);
+        }
+
+        // Update snap indicator during block creation
+        function updateSnapIndicator(dayIndex, startMinutes, endMinutes) {
+            const dayColumn = document.querySelector(`.day-column[data-day-index="${dayIndex}"]`);
+            if (!dayColumn || !plannerState.snapIndicator) return;
+            
+            const startHour = plannerState.settings.startHour;
+            const slotHeight = 30;
+            const minutesPerSlot = 30;
+            
+            // Calculate position
+            const startSlot = startMinutes / minutesPerSlot;
+            const endSlot = endMinutes / minutesPerSlot;
+            
+            const top = startSlot * slotHeight;
+            const height = Math.max((endSlot - startSlot) * slotHeight, slotHeight / 2);
+            
+            // Update the snap indicator
+            plannerState.snapIndicator.style.top = `${top}px`;
+            plannerState.snapIndicator.style.height = `${height}px`;
+        }
+
+        // Remove snap indicator
+        function removeSnapIndicator() {
+            if (plannerState.snapIndicator && plannerState.snapIndicator.parentNode) {
+                plannerState.snapIndicator.parentNode.removeChild(plannerState.snapIndicator);
+            }
+            plannerState.snapIndicator = null;
+        }
+
+        // Open modal to add/edit a block
+        function openBlockModal(dayIndex, startMinutes, endMinutes, blockId = null) {
+            const modal = document.getElementById('block-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const blockForm = document.getElementById('block-form');
+            
+            // Set modal title
+            if (blockId) {
+                modalTitle.textContent = 'Edit Block';
+            } else {
+                modalTitle.textContent = 'Add New Block';
+            }
+            
+            // Set form values
+            document.getElementById('block-id').value = blockId || '';
+            document.getElementById('block-day').value = dayIndex;
+            
+            // Convert minutes to time string
+            const startHour = plannerState.settings.startHour;
+            const totalStartMinutes = startHour * 60 + startMinutes;
+            const startHours = Math.floor(totalStartMinutes / 60);
+            const startMins = totalStartMinutes % 60;
+            
+            const totalEndMinutes = startHour * 60 + endMinutes;
+            const endHours = Math.floor(totalEndMinutes / 60);
+            const endMins = totalEndMinutes % 60;
+            
+            document.getElementById('block-start').value = 
+                `${startHours.toString().padStart(2, '0')}:${startMins.toString().padStart(2, '0')}`;
+            document.getElementById('block-end').value = 
+                `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+            
+            // If editing, load block data
+            if (blockId) {
+                const weekKey = getWeekKey(plannerState.currentWeekStart);
+                const block = plannerState.blocks[weekKey]?.find(b => b.id === blockId);
+                if (block) {
+                    document.getElementById('block-name').value = block.name;
+                    document.getElementById('block-description').value = block.description || '';
+                    plannerState.selectedColor = block.color;
+                    updateColorSelection();
+                }
+            } else {
+                document.getElementById('block-name').value = '';
+                document.getElementById('block-description').value = '';
+                plannerState.selectedColor = plannerState.settings.colors[0].value;
+                updateColorSelection();
+            }
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+
+        // Render color options
+        function renderColorOptions() {
+            const colorOptions = document.getElementById('color-options');
+            colorOptions.innerHTML = '';
+            
+            plannerState.settings.colors.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color.value;
+                colorOption.dataset.color = color.value;
+                
+                if (color.value === plannerState.selectedColor) {
+                    colorOption.classList.add('selected');
+                }
+                
+                colorOption.addEventListener('click', function() {
+                    plannerState.selectedColor = color.value;
+                    updateColorSelection();
+                });
+                
+                colorOptions.appendChild(colorOption);
+            });
+        }
+
+        // Update color selection UI
+        function updateColorSelection() {
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                if (option.dataset.color === plannerState.selectedColor) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Load blocks from storage and render them for current week
+        function loadBlocksFromStorage() {
+            // Clear existing blocks from DOM
+            document.querySelectorAll('.planner-block').forEach(block => block.remove());
+            
+            const weekKey = getWeekKey(plannerState.currentWeekStart);
+            const weekBlocks = plannerState.blocks[weekKey] || [];
+            
+            weekBlocks.forEach(block => {
+                renderBlock(block);
+            });
+        }
+
+        // Render a block on the planner
+        function renderBlock(block) {
+            // Remove existing block with same ID if it exists
+            const existingBlock = document.querySelector(`.planner-block[data-block-id="${block.id}"]`);
+            if (existingBlock) {
+                existingBlock.remove();
+            }
+            
+            const dayColumn = document.querySelector(`.day-column[data-day-index="${block.dayIndex}"]`);
+            if (!dayColumn) return;
+            
+            const startHour = plannerState.settings.startHour;
+            const slotHeight = 30;
+            const minutesPerSlot = 30;
+            
+            // Calculate position
+            const startMinutes = block.startMinutes;
+            const endMinutes = block.endMinutes;
+            
+            const startSlot = startMinutes / minutesPerSlot;
+            const endSlot = endMinutes / minutesPerSlot;
+            
+            const top = startSlot * slotHeight;
+            const height = Math.max((endSlot - startSlot) * slotHeight, slotHeight / 2);
+            
+            // Create block element
+            const blockElement = document.createElement('div');
+            blockElement.className = 'planner-block';
+            blockElement.dataset.blockId = block.id;
+            blockElement.style.top = `${top}px`;
+            blockElement.style.height = `${height}px`;
+            blockElement.style.backgroundColor = block.color;
+            blockElement.style.borderLeftColor = block.color;
+            
+            // Calculate display times
+            const totalStartMinutes = startHour * 60 + startMinutes;
+            const startHours = Math.floor(totalStartMinutes / 60);
+            const startMins = totalStartMinutes % 60;
+            
+            const totalEndMinutes = startHour * 60 + endMinutes;
+            const endHours = Math.floor(totalEndMinutes / 60);
+            const endMins = totalEndMinutes % 60;
+            
+            // Format times based on settings
+            const startTimeStr = formatTime(startHours, startMins);
+            const endTimeStr = formatTime(endHours, endMins);
+            
+            // Block content
+            blockElement.innerHTML = `
+                <div class="block-title">${block.name}</div>
+                <div class="block-time">${startTimeStr} - ${endTimeStr}</div>
+                <div class="block-actions">
+                    <button class="block-action-btn block-edit-btn" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="block-action-btn block-delete-btn" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Add hover tooltip with additional info
+            blockElement.title = `${block.name}\n${startTimeStr} - ${endTimeStr}\n${block.description || 'No description'}`;
+            
+            // Add click event to edit block
+            blockElement.addEventListener('click', function(e) {
+                if (!e.target.closest('.block-actions')) {
+                    openBlockModal(block.dayIndex, block.startMinutes, block.endMinutes, block.id);
+                }
+            });
+            
+            // Add event listeners to action buttons
+            const editBtn = blockElement.querySelector('.block-edit-btn');
+            const deleteBtn = blockElement.querySelector('.block-delete-btn');
+            
+            editBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                openBlockModal(block.dayIndex, block.startMinutes, block.endMinutes, block.id);
+            });
+            
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                deleteBlock(block.id);
+            });
+            
+            dayColumn.appendChild(blockElement);
+        }
+
+        // Save a block
+        function saveBlock(blockData) {
+            const blockId = blockData.id || 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const dayIndex = parseInt(blockData.dayIndex);
+            const weekKey = getWeekKey(plannerState.currentWeekStart);
+            
+            // Parse time strings to minutes
+            const startTimeParts = blockData.startTime.split(':');
+            const endTimeParts = blockData.endTime.split(':');
+            
+            const startHour = parseInt(startTimeParts[0]);
+            const startMinute = parseInt(startTimeParts[1]);
+            const endHour = parseInt(endTimeParts[0]);
+            const endMinute = parseInt(endTimeParts[1]);
+            
+            const settingsStartHour = plannerState.settings.startHour;
+            const startMinutes = (startHour - settingsStartHour) * 60 + startMinute;
+            const endMinutes = (endHour - settingsStartHour) * 60 + endMinute;
+            
+            // Validate times
+            if (startMinutes < 0 || endMinutes <= startMinutes) {
+                showNotification('Invalid time range. Please check start and end times.', 'error');
+                return;
+            }
+            
+            const block = {
+                id: blockId,
+                dayIndex: dayIndex,
+                name: blockData.name,
+                description: blockData.description,
+                color: blockData.color,
+                startMinutes: startMinutes,
+                endMinutes: endMinutes,
+                created: new Date().toISOString()
+            };
+            
+            // Initialize week blocks if not exist
+            if (!plannerState.blocks[weekKey]) {
+                plannerState.blocks[weekKey] = [];
+            }
+            
+            // Remove existing block with same ID if editing
+            const existingIndex = plannerState.blocks[weekKey].findIndex(b => b.id === blockId);
+            if (existingIndex !== -1) {
+                plannerState.blocks[weekKey][existingIndex] = block;
+            } else {
+                plannerState.blocks[weekKey].push(block);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('weeklyPlannerBlocks', JSON.stringify(plannerState.blocks));
+            
+            // Render the block
+            renderBlock(block);
+            
+            showNotification('Block saved successfully!');
+        }
+
+        // Delete a block
+        function deleteBlock(blockId) {
+            if (confirm('Are you sure you want to delete this block?')) {
+                const weekKey = getWeekKey(plannerState.currentWeekStart);
+                
+                // Remove from state
+                if (plannerState.blocks[weekKey]) {
+                    plannerState.blocks[weekKey] = plannerState.blocks[weekKey].filter(block => block.id !== blockId);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('weeklyPlannerBlocks', JSON.stringify(plannerState.blocks));
+                
+                // Remove from DOM
+                const blockElement = document.querySelector(`.planner-block[data-block-id="${blockId}"]`);
+                if (blockElement) {
+                    blockElement.remove();
+                }
+                
+                showNotification('Block deleted successfully!');
+            }
+        }
+
+        // Load settings from storage
+        function loadSettingsFromStorage() {
+            document.getElementById('start-hour').value = plannerState.settings.startHour;
+            document.getElementById('end-hour').value = plannerState.settings.endHour;
+            document.getElementById('time-format').value = plannerState.settings.timeFormat;
+            document.getElementById('snap-interval').value = plannerState.settings.snapInterval;
+        }
+
+        // Apply settings
+        function applySettings() {
+            const startHour = parseInt(document.getElementById('start-hour').value);
+            const endHour = parseInt(document.getElementById('end-hour').value);
+            const timeFormat = document.getElementById('time-format').value;
+            const snapInterval = parseInt(document.getElementById('snap-interval').value);
+            
+            // Validate settings
+            if (startHour >= endHour) {
+                showNotification('End hour must be after start hour', 'error');
+                return;
+            }
+            
+            if (startHour < 0 || startHour > 23) {
+                showNotification('Start hour must be between 0 and 23', 'error');
+                return;
+            }
+            
+            if (endHour < 1 || endHour > 24) {
+                showNotification('End hour must be between 1 and 24', 'error');
+                return;
+            }
+            
+            // Update settings
+            plannerState.settings.startHour = startHour;
+            plannerState.settings.endHour = endHour;
+            plannerState.settings.timeFormat = timeFormat;
+            plannerState.settings.snapInterval = snapInterval;
+            
+            // Save to localStorage
+            localStorage.setItem('weeklyPlannerSettings', JSON.stringify(plannerState.settings));
+            
+            // Re-render planner
+            renderPlannerHeader();
+            renderPlannerGrid();
+            loadBlocksFromStorage();
+            
+            showNotification('Settings applied successfully!');
+        }
+
+        // Open PDF export modal
+        function openPdfModal() {
+            const modal = document.getElementById('pdf-modal');
+            modal.classList.add('active');
+            
+            // Set default values based on current settings
+            const startHour = plannerState.settings.startHour;
+            const endHour = plannerState.settings.endHour;
+            
+            document.getElementById('pdf-start-time').value = 
+                `${startHour.toString().padStart(2, '0')}:00`;
+            document.getElementById('pdf-end-time').value = 
+                `${endHour.toString().padStart(2, '0')}:00`;
+        }
+
+        // Export planner as PDF with selected time range
+        function exportToPDF() {
+            const pdfStartTime = document.getElementById('pdf-start-time').value;
+            const pdfEndTime = document.getElementById('pdf-end-time').value;
+            
+            // Parse time strings
+            const startParts = pdfStartTime.split(':');
+            const endParts = pdfEndTime.split(':');
+            
+            const startHour = parseInt(startParts[0]);
+            const startMinute = parseInt(startParts[1]);
+            const endHour = parseInt(endParts[0]);
+            const endMinute = parseInt(endParts[1]);
+            
+            // Convert to total minutes for comparison
+            const startTotalMinutes = startHour * 60 + startMinute;
+            const endTotalMinutes = endHour * 60 + endMinute;
+            
+            // Validate time range
+            if (startTotalMinutes >= endTotalMinutes) {
+                showNotification('PDF end time must be after start time', 'error');
+                return;
+            }
+            
+            // Close modal
+            document.getElementById('pdf-modal').classList.remove('active');
+            
+            // Show loading indicator
+            showNotification('Generating PDF...', 'info');
+            
+            // Create a custom container for the PDF
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.position = 'absolute';
+            pdfContainer.style.left = '-9999px';
+            pdfContainer.style.width = '1400px';
+            pdfContainer.style.backgroundColor = 'white';
+            pdfContainer.style.borderRadius = '12px';
+            pdfContainer.style.overflow = 'hidden';
+            pdfContainer.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+            
+            // Create days header for PDF
+            const daysHeader = document.createElement('div');
+            daysHeader.style.display = 'grid';
+            daysHeader.style.gridTemplateColumns = '80px repeat(7, 1fr)';
+            daysHeader.style.backgroundColor = '#4f46e5';
+            daysHeader.style.color = 'white';
+            daysHeader.style.fontWeight = '600';
+            daysHeader.style.textAlign = 'center';
+            
+            // Time column header
+            const timeHeader = document.createElement('div');
+            timeHeader.style.padding = '15px 10px';
+            timeHeader.style.borderRight = '1px solid rgba(255, 255, 255, 0.2)';
+            timeHeader.textContent = 'Time';
+            daysHeader.appendChild(timeHeader);
+            
+            // Day headers
+            plannerState.currentWeek.forEach((date, index) => {
+                const dayHeader = document.createElement('div');
+                dayHeader.style.padding = '15px 10px';
+                dayHeader.style.borderRight = '1px solid rgba(255, 255, 255, 0.2)';
+                dayHeader.style.display = 'flex';
+                dayHeader.style.flexDirection = 'column';
+                dayHeader.style.gap = '5px';
+                
+                const dayName = document.createElement('div');
+                dayName.style.fontSize = '1.1rem';
+                dayName.textContent = `${plannerState.days[index].fr} / ${plannerState.days[index].en}`;
+                
+                const dayDate = document.createElement('div');
+                dayDate.style.fontSize = '0.9rem';
+                dayDate.style.opacity = '0.9';
+                dayDate.textContent = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                dayHeader.appendChild(dayName);
+                dayHeader.appendChild(dayDate);
+                daysHeader.appendChild(dayHeader);
+            });
+            
+            pdfContainer.appendChild(daysHeader);
+            
+            // Create grid for PDF
+            const pdfGrid = document.createElement('div');
+            pdfGrid.style.display = 'grid';
+            pdfGrid.style.gridTemplateColumns = '80px repeat(7, 1fr)';
+            pdfGrid.style.position = 'relative';
+            
+            // Create time column for PDF
+            const timeColumn = document.createElement('div');
+            timeColumn.style.display = 'flex';
+            timeColumn.style.flexDirection = 'column';
+            
+            // Add time slots for the selected range
+            for (let hour = startHour; hour <= endHour; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    // Calculate current time in minutes
+                    const currentMinutes = hour * 60 + minute;
+                    
+                    // Only add if within the selected range
+                    if (currentMinutes >= startTotalMinutes && currentMinutes < endTotalMinutes) {
+                        const timeSlot = document.createElement('div');
+                        timeSlot.style.height = '60px';
+                        timeSlot.style.borderBottom = '1px solid #e5e7eb';
+                        timeSlot.style.borderRight = '1px solid #e5e7eb';
+                        timeSlot.style.display = 'flex';
+                        timeSlot.style.alignItems = 'center';
+                        timeSlot.style.justifyContent = 'center';
+                        timeSlot.style.fontSize = '0.9rem';
+                        timeSlot.style.color = '#6b7280';
+                        timeSlot.style.position = 'relative';
+                        timeSlot.style.backgroundColor = '#f9fafb';
+                        
+                        if (minute === 0) {
+                            timeSlot.style.fontWeight = '600';
+                            timeSlot.style.color = '#4b5563';
+                            timeSlot.textContent = formatTime(hour, 0);
+                        } else {
+                            timeSlot.textContent = formatTime(hour, minute);
+                        }
+                        
+                        // Set height for 30-minute intervals (30px per 30 minutes = 1px per minute)
+                        // But we need to scale it to show the entire selected range
+                        const totalMinutesInRange = endTotalMinutes - startTotalMinutes;
+                        const pixelsPerMinute = 600 / totalMinutesInRange; // 600px total height for PDF
+                        timeSlot.style.height = `${30 * pixelsPerMinute}px`;
+                        timeColumn.appendChild(timeSlot);
+                    }
+                }
+            }
+            
+            pdfGrid.appendChild(timeColumn);
+            
+            // Create day columns for PDF
+            for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                const dayColumn = document.createElement('div');
+                dayColumn.style.borderRight = '1px solid #e5e7eb';
+                dayColumn.style.position = 'relative';
+                
+                if (dayIndex === 6) {
+                    dayColumn.style.borderRight = 'none';
+                }
+                
+                // Add blocks for this day
+                const weekKey = getWeekKey(plannerState.currentWeekStart);
+                const weekBlocks = plannerState.blocks[weekKey] || [];
+                const dayBlocks = weekBlocks.filter(block => block.dayIndex === dayIndex);
+                
+                dayBlocks.forEach(block => {
+                    // Calculate block's absolute start and end in minutes from midnight
+                    const blockStartHour = plannerState.settings.startHour;
+                    const blockStartMinutes = blockStartHour * 60 + block.startMinutes;
+                    const blockEndMinutes = blockStartHour * 60 + block.endMinutes;
+                    
+                    // Check if block overlaps with PDF time range
+                    if (blockEndMinutes > startTotalMinutes && blockStartMinutes < endTotalMinutes) {
+                        // Calculate visible portion of block in PDF
+                        const pdfBlockStart = Math.max(blockStartMinutes, startTotalMinutes);
+                        const pdfBlockEnd = Math.min(blockEndMinutes, endTotalMinutes);
+                        
+                        // Only show if there's actually something to show
+                        if (pdfBlockEnd > pdfBlockStart) {
+                            const blockElement = document.createElement('div');
+                            blockElement.style.position = 'absolute';
+                            blockElement.style.borderRadius = '6px';
+                            blockElement.style.padding = '8px';
+                            blockElement.style.overflow = 'hidden';
+                            blockElement.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                            blockElement.style.borderLeft = `4px solid ${block.color}`;
+                            blockElement.style.backgroundColor = block.color;
+                            blockElement.style.display = 'flex';
+                            blockElement.style.flexDirection = 'column';
+                            blockElement.style.zIndex = '10';
+                            
+                            // Calculate position and size
+                            const totalMinutesInRange = endTotalMinutes - startTotalMinutes;
+                            const pixelsPerMinute = 600 / totalMinutesInRange;
+                            
+                            const top = (pdfBlockStart - startTotalMinutes) * pixelsPerMinute;
+                            const height = (pdfBlockEnd - pdfBlockStart) * pixelsPerMinute;
+                            
+                            blockElement.style.top = `${top}px`;
+                            blockElement.style.height = `${height}px`;
+                            blockElement.style.width = 'calc(100% - 4px)';
+                            blockElement.style.left = '2px';
+                            
+                            // Format times for display
+                            const startTimeStr = formatTime(
+                                Math.floor(pdfBlockStart / 60),
+                                pdfBlockStart % 60
+                            );
+                            const endTimeStr = formatTime(
+                                Math.floor(pdfBlockEnd / 60),
+                                pdfBlockEnd % 60
+                            );
+                            
+                            blockElement.innerHTML = `
+                                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${block.name}</div>
+                                <div style="font-size: 0.75rem; opacity: 0.9;">${startTimeStr} - ${endTimeStr}</div>
+                            `;
+                            
+                            dayColumn.appendChild(blockElement);
+                        }
+                    }
+                });
+                
+                pdfGrid.appendChild(dayColumn);
+            }
+            
+            pdfContainer.appendChild(pdfGrid);
+            document.body.appendChild(pdfContainer);
+            
+            // Set a fixed height for the PDF container to ensure consistent scaling
+            pdfContainer.style.height = '700px';
+            
+            html2canvas(pdfContainer, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+                const imgWidth = 280;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                pdf.save('weekly-planner-' + getWeekKey(plannerState.currentWeekStart) + '.pdf');
+                
+                // Remove temporary container
+                document.body.removeChild(pdfContainer);
+                
+                showNotification('PDF exported successfully!');
+            });
+        }
+
+        // Clear all blocks for current week
+        function clearAllBlocks() {
+            if (confirm('Are you sure you want to delete all blocks for this week? This cannot be undone.')) {
+                const weekKey = getWeekKey(plannerState.currentWeekStart);
+                delete plannerState.blocks[weekKey];
+                localStorage.setItem('weeklyPlannerBlocks', JSON.stringify(plannerState.blocks));
+                
+                // Remove all blocks from DOM
+                document.querySelectorAll('.planner-block').forEach(block => block.remove());
+                
+                showNotification('All blocks cleared for this week!');
+            }
+        }
+
+        // Add sample blocks for current week
+        function addSampleBlocks() {
+            const weekKey = getWeekKey(plannerState.currentWeekStart);
+            
+            // Initialize week blocks if not exist
+            if (!plannerState.blocks[weekKey]) {
+                plannerState.blocks[weekKey] = [];
+            }
+            
+            const sampleBlocks = [
+                {
+                    dayIndex: 0,
+                    name: 'Team Meeting',
+                    description: 'Weekly team sync',
+                    color: '#3b82f6',
+                    startMinutes: 60, // 9:00 AM if start hour is 8
+                    endMinutes: 120 // 10:00 AM
+                },
+                {
+                    dayIndex: 0,
+                    name: 'Lunch Break',
+                    description: '',
+                    color: '#10b981',
+                    startMinutes: 240, // 12:00 PM
+                    endMinutes: 300 // 1:00 PM
+                },
+                {
+                    dayIndex: 2,
+                    name: 'Project Review',
+                    description: 'Quarterly project review with stakeholders',
+                    color: '#8b5cf6',
+                    startMinutes: 180, // 11:00 AM
+                    endMinutes: 270 // 12:30 PM
+                },
+                {
+                    dayIndex: 4,
+                    name: 'Gym Session',
+                    description: 'Cardio and strength training',
+                    color: '#ec4899',
+                    startMinutes: 390, // 2:30 PM
+                    endMinutes: 450 // 3:30 PM
+                }
+            ];
+            
+            sampleBlocks.forEach(block => {
+                const blockId = 'sample_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const fullBlock = {
+                    ...block,
+                    id: blockId,
+                    created: new Date().toISOString()
+                };
+                
+                plannerState.blocks[weekKey].push(fullBlock);
+                renderBlock(fullBlock);
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('weeklyPlannerBlocks', JSON.stringify(plannerState.blocks));
+            
+            showNotification('Sample blocks added for this week!');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            // Set notification type
+            if (type === 'error') {
+                notification.style.backgroundColor = '#ef4444';
+                notification.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else if (type === 'info') {
+                notification.style.backgroundColor = '#3b82f6';
+                notification.querySelector('i').className = 'fas fa-info-circle';
+            } else {
+                notification.style.backgroundColor = '#10b981';
+                notification.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Week navigation buttons
+            document.getElementById('prev-year').addEventListener('click', navigateToPreviousYear);
+            document.getElementById('prev-month').addEventListener('click', navigateToPreviousMonth);
+            document.getElementById('prev-week').addEventListener('click', navigateToPreviousWeek);
+            document.getElementById('next-week').addEventListener('click', navigateToNextWeek);
+            document.getElementById('next-month').addEventListener('click', navigateToNextMonth);
+            document.getElementById('next-year').addEventListener('click', navigateToNextYear);
+            
+            // Today button
+            document.getElementById('today-btn').addEventListener('click', navigateToToday);
+            
+            // Week date selector
+            document.getElementById('week-date-selector').addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                navigateToDate(selectedDate);
+            });
+            
+            // Settings button
+            document.getElementById('settings-btn').addEventListener('click', function() {
+                document.getElementById('settings-panel').classList.toggle('active');
+            });
+            
+            // Apply settings button
+            document.getElementById('apply-settings').addEventListener('click', applySettings);
+            
+            // Export PDF button
+            document.getElementById('export-pdf-btn').addEventListener('click', openPdfModal);
+            
+            // PDF cancel button
+            document.getElementById('pdf-cancel').addEventListener('click', function() {
+                document.getElementById('pdf-modal').classList.remove('active');
+            });
+            
+            // PDF export button
+            document.getElementById('pdf-export').addEventListener('click', exportToPDF);
+            
+            // Clear all button
+            document.getElementById('clear-all-btn').addEventListener('click', clearAllBlocks);
+            
+            // Add sample blocks button
+            document.getElementById('add-sample-btn').addEventListener('click', addSampleBlocks);
+            
+            // Block form submission
+            document.getElementById('block-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const blockData = {
+                    id: document.getElementById('block-id').value,
+                    dayIndex: document.getElementById('block-day').value,
+                    name: document.getElementById('block-name').value,
+                    description: document.getElementById('block-description').value,
+                    startTime: document.getElementById('block-start').value,
+                    endTime: document.getElementById('block-end').value,
+                    color: plannerState.selectedColor
+                };
+                
+                saveBlock(blockData);
+                
+                // Close modal
+                document.getElementById('block-modal').classList.remove('active');
+                this.reset();
+            });
+            
+            // Modal close buttons
+            document.getElementById('modal-close').addEventListener('click', function() {
+                document.getElementById('block-modal').classList.remove('active');
+                document.getElementById('block-form').reset();
+            });
+            
+            document.getElementById('modal-cancel').addEventListener('click', function() {
+                document.getElementById('block-modal').classList.remove('active');
+                document.getElementById('block-form').reset();
+            });
+            
+            // Close modals when clicking outside
+            document.getElementById('block-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.getElementById('block-form').reset();
+                }
+            });
+            
+            document.getElementById('pdf-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
